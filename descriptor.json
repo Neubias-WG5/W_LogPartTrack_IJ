@@ -1,0 +1,92 @@
+{
+    "name": "PartTracking-ImageJ",
+    "container-image": {
+        "image": "neubiaswg5/w_parttracking-imagej",
+        "type": "singularity"
+    },
+    "schema-version": "cytomine-0.1",
+    "description": "Particle tracking based on linking closest intensity minima detected from LoG filtered time-lapse.",
+    "command-line": "python wrapper.py CYTOMINE_HOST CYTOMINE_PUBLIC_KEY CYTOMINE_PRIVATE_KEY CYTOMINE_ID_PROJECT CYTOMINE_ID_SOFTWARE LAPRAD THR MAXLNKDST",
+    "inputs": [
+        {
+            "id": "cytomine_host",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Cytomine host",
+            "description": "Cytomine server hostname",
+            "type": "String",
+            "optional": false,
+            "set-by-server": true
+        },
+        {
+            "id": "cytomine_public_key",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Cytomine public key",
+            "description": "Cytomine public key",
+            "type": "String",
+            "optional": false,
+            "set-by-server": true
+        },
+        {
+            "id": "cytomine_private_key",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Cytomine private key",
+            "description": "Cytomine private key",
+            "type": "String",
+            "optional": false,
+            "set-by-server": true
+        },
+        {
+            "id": "cytomine_id_project",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Cytomine project id",
+            "description": "Cytomine project id",
+            "type": "String",
+            "optional": false,
+            "set-by-server": true
+        },
+        {
+            "id": "cytomine_id_software",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Cytomine software id",
+            "description": "Cytomine software id",
+            "type": "String",
+            "optional": false,
+            "set-by-server": true
+        },
+        {
+            "id": "laprad",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "LoG Radius",
+            "description": "Radius for the LoG filter",
+            "type": "Number",
+            "default-value": 9,
+            "optional": true
+        },
+        {
+            "id": "thr",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Threshold",
+            "description": "Particle detection threshold",
+            "type": "Number",
+            "default-value": 0.05,
+            "optional": true
+        },
+        {
+            "id": "maxlnkdst",
+            "value-key": "@ID",
+            "command-line-flag": "--@id",
+            "name": "Maximum linking distance",
+            "description": "Maximum distance to link particles in consecutive frames",
+            "type": "Number",
+            "default-value": 15,
+            "optional": true
+        }
+    ]
+}
