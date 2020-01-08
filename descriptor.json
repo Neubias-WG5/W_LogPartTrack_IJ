@@ -1,7 +1,7 @@
 {
-    "name": "PartTracking-ImageJ",
+    "name": "LogPartTrack_IJ",
     "container-image": {
-        "image": "neubiaswg5/w_parttracking-imagej",
+        "image": "neubiaswg5/w_logparttrack_ij",
         "type": "singularity"
     },
     "schema-version": "cytomine-0.1",
