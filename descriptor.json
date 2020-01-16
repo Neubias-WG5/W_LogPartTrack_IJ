@@ -6,7 +6,7 @@
     },
     "schema-version": "cytomine-0.1",
     "description": "Particle tracking based on linking closest intensity minima detected from LoG filtered time-lapse.",
-    "command-line": "python wrapper.py CYTOMINE_HOST CYTOMINE_PUBLIC_KEY CYTOMINE_PRIVATE_KEY CYTOMINE_ID_PROJECT CYTOMINE_ID_SOFTWARE LAPRAD THR MAXLNKDST",
+    "command-line": "python wrapper.py CYTOMINE_HOST CYTOMINE_PUBLIC_KEY CYTOMINE_PRIVATE_KEY CYTOMINE_ID_PROJECT CYTOMINE_ID_SOFTWARE LAPRAD THR MAXLNKDST ",
     "inputs": [
         {
             "id": "cytomine_host",
