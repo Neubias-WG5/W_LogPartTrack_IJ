@@ -100,8 +100,8 @@ for(i=0;i<nSlices;i++)
 // Save label mask
 selectImage(MaskID);
 run("Properties...", "channels=1 slices=1 frames="+nSlices);
-run("Bio-Formats Exporter", "save="+outputDir+File.separator+FileName+" compression=Uncompressed");
-//save(outputDir+File.separator+FileName);
+//run("Bio-Formats Exporter", "save="+outputDir+File.separator+FileName+" compression=Uncompressed");
+save(outputDir+File.separator+FileName);
 
 run("Close All");
 setBatchMode("exit & display");
