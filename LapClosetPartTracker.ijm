@@ -100,10 +100,9 @@ for(i=0;i<nSlices;i++)
 // Save label mask
 selectImage(MaskID);
 run("Properties...", "channels=1 slices=1 frames="+nSlices);
-if (!endsWith(image, ".ome.tif")) image = replace(image, ".tif", ".ome.tif");
-run("Bio-Formats Exporter", "save="+outputDir + "/" + image+" export compression=Uncompressed");
-nameWithoutOme = replace(image, ".ome", ""); 			
-File.rename(outputDir+"/"+image, outputDir+"/"+nameWithoutOme);
+//run("Bio-Formats Exporter", "save="+outputDir+File.separator+FileName+" compression=Uncompressed");
+save(outputDir+File.separator+FileName);
+
 run("Close All");
 setBatchMode("exit & display");
 
