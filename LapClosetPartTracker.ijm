@@ -30,81 +30,84 @@ setBatchMode(true);
 images = getFileList(inputDir);
 for(img=0; img<images.length; img++) 
 {
-
-	// Open image
-	FileName = images[img];
-	open(inputDir+File.separator+FileName);
-
-	// Workflow
-	run("Properties...", "channels=1 slices=1 frames="+nSlices);
-	run("FeatureJ Laplacian", "compute smoothing="+d2s(laprad,0));
-	FilterID = getImageID();
-	for(i=0;i<nSlices;i++)
+	image = images[img];
+	if (endsWith(image, ".tif")) 
 	{
-		selectImage(FilterID);
-		setSlice(i+1);
-		run("Find Maxima...", "noise="+d2s(thr,3)+" output=List exclude light");
-		NewX = newArray(nResults);
-		NewY = newArray(nResults);
-		for(j=0;j<nResults;j++)
+		// Open image
+		run("Bio-Formats Importer", "open="+inputDir + "/" + image+" autoscale color_mode=Default rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
+
+		// Workflow
+		run("Properties...", "channels=1 slices=1 frames="+nSlices);
+		run("FeatureJ Laplacian", "compute smoothing="+d2s(laprad,0));
+		FilterID = getImageID();
+		for(i=0;i<nSlices;i++)
 		{
-			NewX[j] = getResult("X",j);
-			NewY[j] = getResult("Y",j);
-		}
-		if(i==0)
-		{
-			newImage("Mask", "16-bit black", getWidth(), getHeight(), nSlices);	
-			MaskID = getImageID();
-			NObjs = lengthOf(NewX);
-			for(j=0;j<lengthOf(NewX);j++)setPixel(NewX[j],NewY[j],j+1);
-			LastX = NewX;
-			LastY = NewY;
-		}
-		else
-		{
-			selectImage(MaskID);
+			selectImage(FilterID);
 			setSlice(i+1);
-			LastX_buf = newArray(NObjs);
-			LastY_buf = newArray(NObjs);
-			Buf = newArray(lengthOf(NewX));
-			for(k=0;k<lengthOf(NewX);k++)Buf[k] = 1/0;
-			for(j=0;j<NObjs;j++)
+			run("Find Maxima...", "noise="+d2s(thr,3)+" output=List exclude light");
+			NewX = newArray(nResults);
+			NewY = newArray(nResults);
+			for(j=0;j<nResults;j++)
 			{
-				MinDst2 = 1/0;
-				Mink = -1;
-				for(k=0;k<lengthOf(NewX);k++)
+				NewX[j] = getResult("X",j);
+				NewY[j] = getResult("Y",j);
+			}
+			if(i==0)
+			{
+				newImage("Mask", "16-bit black", getWidth(), getHeight(), nSlices);	
+				MaskID = getImageID();
+				NObjs = lengthOf(NewX);
+				for(j=0;j<lengthOf(NewX);j++)setPixel(NewX[j],NewY[j],j+1);
+				LastX = NewX;
+				LastY = NewY;
+			}
+			else
+			{
+				selectImage(MaskID);
+				setSlice(i+1);
+				LastX_buf = newArray(NObjs);
+				LastY_buf = newArray(NObjs);
+				Buf = newArray(lengthOf(NewX));
+				for(k=0;k<lengthOf(NewX);k++)Buf[k] = 1/0;
+				for(j=0;j<NObjs;j++)
 				{
-					Dst2 = (pow(NewX[k]-LastX[j],2)+pow(NewY[k]-LastY[j],2));
-					if((Dst2<MinDst2)&&(Dst2<Buf[k])&&(Dst2<maxlnkdst*maxlnkdst))
+					MinDst2 = 1/0;
+					Mink = -1;
+					for(k=0;k<lengthOf(NewX);k++)
 					{
-						MinDst2 = Dst2;
-						Buf[k] = Dst2;
-						Mink = k; 
+						Dst2 = (pow(NewX[k]-LastX[j],2)+pow(NewY[k]-LastY[j],2));
+						if((Dst2<MinDst2)&&(Dst2<Buf[k])&&(Dst2<maxlnkdst*maxlnkdst))
+						{
+							MinDst2 = Dst2;
+							Buf[k] = Dst2;
+							Mink = k; 
+						}
+					}
+					if(Mink>-1)
+					{
+						setPixel(NewX[Mink],NewY[Mink],j+1);
+						LastX_buf[j] = NewX[Mink];
+						LastY_buf[j] = NewY[Mink];
 					}
 				}
-				if(Mink>-1)
-				{
-					setPixel(NewX[Mink],NewY[Mink],j+1);
-					LastX_buf[j] = NewX[Mink];
-					LastY_buf[j] = NewY[Mink];
-				}
+				LastX = LastX_buf;
+				LastY = LastY_buf;
+				// Check which particles were lost and ensure they will not be further linked
+				getHistogram(values, counts, 65536);
+				for(k=0;k<NObjs;k++)if(counts[k+1]==0)LastX[k] = 1/0;
 			}
-			LastX = LastX_buf;
-			LastY = LastY_buf;
-			// Check which particles were lost and ensure they will not be further linked
-			getHistogram(values, counts, 65536);
-			for(k=0;k<NObjs;k++)if(counts[k+1]==0)LastX[k] = 1/0;
-		}	
+		}
+		
+		// Save label mask
+		selectImage(MaskID);
+		run("Properties...", "channels=1 slices=1 frames="+nSlices);
+		if (!endsWith(image, ".ome.tif")) image = replace(image, ".tif", ".ome.tif");
+		run("Bio-Formats Exporter", "save="+outputDir + "/" + image+" export compression=Uncompressed");
+		nameWithoutOme = replace(image, ".ome", ""); 			
+		File.rename(outputDir+"/"+image, outputDir+"/"+nameWithoutOme);
+
+		run("Close All");
+		
 	}
-
-	// Save label mask
-	selectImage(MaskID);
-	run("Properties...", "channels=1 slices=1 frames="+nSlices);
-	if (!endsWith(image, ".ome.tif")) image = replace(image, ".tif", ".ome.tif");
-	run("Bio-Formats Exporter", "save="+outputDir + "/" + image+" export compression=Uncompressed");
-	nameWithoutOme = replace(image, ".ome", ""); 			
-	File.rename(outputDir+"/"+image, outputDir+"/"+nameWithoutOme);
-
-	run("Close All");
 
 }
